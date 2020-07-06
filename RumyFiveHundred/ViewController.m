@@ -12,7 +12,7 @@
 
 // unsure if I need these as public. Most likely not 07.06.20
 @property NSMutableArray *clubsArray; // array of cards in Clubs
-@property NSMutableArray *diamondsArray; // array of cards in Diamonds 
+@property NSMutableArray *diamondsArray; // array of cards in Diamonds
 @property NSMutableArray *heartsArray; // array of cards in Hearts
 @property NSMutableArray *spadesArray; // array of cards in Spades
 @property NSMutableArray *printMeArray; // array of cards for printing in console [unimportant to codebase]
