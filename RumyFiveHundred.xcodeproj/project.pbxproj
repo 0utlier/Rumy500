@@ -16,6 +16,7 @@
 		5F90AEFF24B2DB6400989914 /* RumyFiveHundredTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AEFE24B2DB6400989914 /* RumyFiveHundredTests.m */; };
 		5F90AF0A24B2DB6400989914 /* RumyFiveHundredUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AF0924B2DB6400989914 /* RumyFiveHundredUITests.m */; };
 		5F90AF1924B2DE0800989914 /* Card.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AF1824B2DE0800989914 /* Card.m */; };
+		5FDF443624B324540077A7A8 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FDF443524B324540077A7A8 /* Player.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,8 @@
 		5F90AF0B24B2DB6400989914 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5F90AF1724B2DE0800989914 /* Card.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Card.h; sourceTree = "<group>"; };
 		5F90AF1824B2DE0800989914 /* Card.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Card.m; sourceTree = "<group>"; };
+		5FDF443424B324540077A7A8 /* Player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
+		5FDF443524B324540077A7A8 /* Player.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Player.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +111,8 @@
 				5F90AEE624B2DB6300989914 /* AppDelegate.m */,
 				5F90AEE824B2DB6300989914 /* ViewController.h */,
 				5F90AEE924B2DB6300989914 /* ViewController.m */,
+				5FDF443424B324540077A7A8 /* Player.h */,
+				5FDF443524B324540077A7A8 /* Player.m */,
 				5F90AF1724B2DE0800989914 /* Card.h */,
 				5F90AF1824B2DE0800989914 /* Card.m */,
 				5F90AEEB24B2DB6300989914 /* Main.storyboard */,
@@ -271,6 +276,7 @@
 				5F90AEF524B2DB6400989914 /* main.m in Sources */,
 				5F90AEE724B2DB6300989914 /* AppDelegate.m in Sources */,
 				5F90AF1924B2DE0800989914 /* Card.m in Sources */,
+				5FDF443624B324540077A7A8 /* Player.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
