@@ -15,6 +15,7 @@
 		5F90AEF524B2DB6400989914 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AEF424B2DB6400989914 /* main.m */; };
 		5F90AEFF24B2DB6400989914 /* RumyFiveHundredTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AEFE24B2DB6400989914 /* RumyFiveHundredTests.m */; };
 		5F90AF0A24B2DB6400989914 /* RumyFiveHundredUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AF0924B2DB6400989914 /* RumyFiveHundredUITests.m */; };
+		5F90AF1924B2DE0800989914 /* Card.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F90AF1824B2DE0800989914 /* Card.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		5F90AF0524B2DB6400989914 /* RumyFiveHundredUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RumyFiveHundredUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F90AF0924B2DB6400989914 /* RumyFiveHundredUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RumyFiveHundredUITests.m; sourceTree = "<group>"; };
 		5F90AF0B24B2DB6400989914 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5F90AF1724B2DE0800989914 /* Card.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Card.h; sourceTree = "<group>"; };
+		5F90AF1824B2DE0800989914 /* Card.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Card.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +108,8 @@
 				5F90AEE624B2DB6300989914 /* AppDelegate.m */,
 				5F90AEE824B2DB6300989914 /* ViewController.h */,
 				5F90AEE924B2DB6300989914 /* ViewController.m */,
+				5F90AF1724B2DE0800989914 /* Card.h */,
+				5F90AF1824B2DE0800989914 /* Card.m */,
 				5F90AEEB24B2DB6300989914 /* Main.storyboard */,
 				5F90AEEE24B2DB6400989914 /* Assets.xcassets */,
 				5F90AEF024B2DB6400989914 /* LaunchScreen.storyboard */,
@@ -265,6 +270,7 @@
 				5F90AEEA24B2DB6300989914 /* ViewController.m in Sources */,
 				5F90AEF524B2DB6400989914 /* main.m in Sources */,
 				5F90AEE724B2DB6300989914 /* AppDelegate.m in Sources */,
+				5F90AF1924B2DE0800989914 /* Card.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
