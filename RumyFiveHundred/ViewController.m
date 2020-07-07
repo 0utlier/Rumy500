@@ -45,6 +45,49 @@
 
 }
 
+-(void)createRumy:(int)cardSelectedIndex { //change this to "cardOf52Number" for easier readability of this func
+    // create array for set use
+    NSMutableArray *currentSet = [[NSMutableArray alloc]init];
+    
+    NSLog(@"Player%d has selected: %d",self.whosUP, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+    
+    // check if any other cards are available that can connect to this for a potential set
+    /**/ /**/
+    // forIn cards in hand
+    // if not same card
+    //   if same face, addObject currentSet
+    //      if not same as any of the cards in the currentSet // QUESTION 07.07.20 how do I write this?
+    //  else if next card over
+    //      if not same as any of the cards in the currentSet, and compare to all in currentSet
+    for (Card *potentialMatch in [self.playersOfGame[self.whosUP]cardsInHand]) {
+        // pass by same card in hand
+        if (potentialMatch.noOfFiftyTwo != [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]) {
+            
+            // check if face is same
+            if (potentialMatch.face == [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]face]) {
+                NSLog(@"potential card's face is %d, our card %d",potentialMatch.suit, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]suit]);
+                // add to set
+                [currentSet addObject:potentialMatch];
+                // check once more for face x2
+                // mark cards as BOARD in allCards
+            }
+            /* // removed 07.07.20, since checking suit first is pointless, if we are going to check if card is next in line of 52
+             // check if suit is same
+             if (potentialMatch.suit == [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]suit]) {
+             // NSLog(@"the card's suit is %d",potentialMatch.suit);
+             // check if noOf52 is +/-1
+             NSLog(@"%d and %d", potentialMatch.noOfFiftyTwo, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+             */
+            
+            // check if card has a neighboring card // check if noOf52 is +/-1
+            else if (abs(potentialMatch.noOfFiftyTwo - [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo])==1) {
+                NSLog(@"the card's faces are %d AND %d",potentialMatch.face, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]face]);
+            }
+            // mark card as BOOL straight
+        }
+    } /**/ /**/
+}
+
 -(void)startPlaying {
     // check whos turn
     NSLog(@"It is player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
@@ -66,16 +109,42 @@
         }
     }
     [self.playersOfGame[self.whosUP] setStatusOfPlayer:PICKED];
-
+    // player has picked a card and now needs to either put cards on the board, or
+    
+    // player selects a card 07.07.20 HARDCODED for now
+    // change this to the noOf52 of the card when ready [makes function easier to read]
+    int cardSelectedIndex = 4;
+    
+    // if player selects a card, check if possible to create set, otherwise return and offer to throw
+    [self createRumy:cardSelectedIndex];
+    
+    // TODO 07.07.20 assign noOF52 of card to an int, and assign the allCards array of that to be PILE
+    // ^^[maybe by subtracting 1 and using that as index]
+    
     // throw card add to/mark PILE, set player to thrown
-    [[self.playersOfGame[self.whosUP]cardsInHand][0]setStatusOfCard:PILE];
-    [self.pileCards addObject:[self.playersOfGame[self.whosUP]cardsInHand][0]];
-    NSLog(@"player%d threw the card: %d",[self.playersOfGame[self.whosUP] playerNumber],[[self.playersOfGame[self.whosUP]cardsInHand][0]noOfFiftyTwo]);
-    [[self.playersOfGame[self.whosUP]cardsInHand] removeObjectAtIndex:0];
-    NSLog(@"The pile has the cards: %d",[self.pileCards[self.whosUP]noOfFiftyTwo]);
-//    NSLog(@"The pile has the cards: %d",[self.pileCards[self.whosUP-1]noOfFiftyTwo]);
+    int currentCardNo = [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo];
+    for (Card *cardForMarkInPile in self.allCards) {
+        if (cardForMarkInPile.noOfFiftyTwo == currentCardNo) {
+            cardForMarkInPile.statusOfCard = PILE;
+            NSLog(@"The card that was thrown to the pile: %d",cardForMarkInPile.noOfFiftyTwo);
+
+            break;
+        }
+    }
+    // add card to pile array
+//    [self.pileCards addObject:[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]];
+    [self.pileCards addObject:self.allCards[currentCardNo]];
+    NSLog(@"player%d threw the card: %d",[self.playersOfGame[self.whosUP] playerNumber], [self.allCards[currentCardNo]noOfFiftyTwo]);
+          //[[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+    // remove card from hand
+    [[self.playersOfGame[self.whosUP]cardsInHand] removeObjectAtIndex:cardSelectedIndex];
+    NSInteger pileCount = [self.pileCards count];
+    for (Card *cardInPile in self.pileCards) {
+        NSLog(@"The pile has the cards: %d",cardInPile.noOfFiftyTwo);
+    }
 
     [self.playersOfGame[self.whosUP] setStatusOfPlayer:THROWN];
+    
     
     // check if player has zero cards
     if ([self.playersOfGame[self.whosUP]cardsInHand] == 0) {
@@ -90,6 +159,9 @@
     }
     NSLog(@"It is now player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
     
+    // make recursive, so that game continues. Will continue until one player is at ZERO
+    // disabled 07.07.20 since we are not there yet
+//    [self startPlaying];
 
 }
 
