@@ -10,7 +10,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef enum {
+    THROWN = 0,
+    PICKED = 1,
+} statusOfPlayer;
+
 @interface Player : NSObject
+
+@property statusOfPlayer statusOfPlayer;
 
 // properties of Player
 @property NSMutableArray *cardsInHand;
@@ -19,9 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property int countCurrentCardsInHand; // necessary if we can get count of array [cardsInHand]?
 @property int playerNumber;
 
-@property BOOL picked;
-@property BOOL thrown;
-
+@property BOOL currentTurn;
+/*@property BOOL picked; // removed for ENUM instead
+ @property BOOL thrown;
+*/
 @end
 
 NS_ASSUME_NONNULL_END

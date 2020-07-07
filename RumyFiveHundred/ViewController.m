@@ -18,7 +18,8 @@
 @property NSMutableArray *printMeArray; // array of cards for printing in console [unimportant to codebase]
 
 @property NSMutableArray *playersOfGame; // array of Players
-
+@property int numberOfPlayers;
+@property int whosUP;
 @end
 
 @implementation ViewController
@@ -27,53 +28,133 @@
     [super viewDidLoad];
     NSLog(@"I love Objective C");
 
+    // set how many players there are
+    self.numberOfPlayers = 3;
+    
     // build deck
     [self create52of52];
     // create users // currently using 2 players 07.06.20
-    [self createUser:3];
+    [self createUser:self.numberOfPlayers];
     [self dealInitialRound:7];
-    [self showPlayerHand:1];
+    [self addFirstCardToPile];
+    [self showPlayerHand:self.whosUP];
+    [self startPlaying];
+    [self startPlaying];
+    [self startPlaying];
     //    [self printMe];
+
+}
+
+-(void)startPlaying {
+    // check whos turn
+    NSLog(@"It is player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
+
+    // TODO give option to choose between DECK and PILE
     
+    // TODO 07.07.20 add randomization for the card
+    // pick card add to/mark HAND, set player to picked
+    for (Card *cardForPick in self.allCards) {
+        if (cardForPick.statusOfCard == DECK) {
+            [[self.playersOfGame[self.whosUP] cardsInHand] addObject:cardForPick];
+            cardForPick.statusOfCard = HAND;
+            // announce which card is there
+            NSLog(@"the card picked by player%d: %d",[self.playersOfGame[self.whosUP] playerNumber], [[[self.playersOfGame[self.whosUP] cardsInHand] lastObject] noOfFiftyTwo]);
+            break;
+        }
+        else {
+//            NSLog(@"card%d is unavailable with status %d", cardForPick.noOfFiftyTwo, cardForPick.statusOfCard);
+        }
+    }
+    [self.playersOfGame[self.whosUP] setStatusOfPlayer:PICKED];
+
+    // throw card add to/mark PILE, set player to thrown
+    [[self.playersOfGame[self.whosUP]cardsInHand][0]setStatusOfCard:PILE];
+    [self.pileCards addObject:[self.playersOfGame[self.whosUP]cardsInHand][0]];
+    NSLog(@"player%d threw the card: %d",[self.playersOfGame[self.whosUP] playerNumber],[[self.playersOfGame[self.whosUP]cardsInHand][0]noOfFiftyTwo]);
+    [[self.playersOfGame[self.whosUP]cardsInHand] removeObjectAtIndex:0];
+    NSLog(@"The pile has the cards: %d",[self.pileCards[self.whosUP]noOfFiftyTwo]);
+//    NSLog(@"The pile has the cards: %d",[self.pileCards[self.whosUP-1]noOfFiftyTwo]);
+
+    [self.playersOfGame[self.whosUP] setStatusOfPlayer:THROWN];
+    
+    // check if player has zero cards
+    if ([self.playersOfGame[self.whosUP]cardsInHand] == 0) {
+        return; // game is over, due to this player having no cards
+    }
+    // increase number to playerWhosUp
+    if (self.whosUP == (self.numberOfPlayers-1)) { // if at the top of the array, reset to zero
+        self.whosUP=0;
+    }
+    else {
+        self.whosUP+=1;
+    }
+    NSLog(@"It is now player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
+    
+
+}
+
+-(void)addFirstCardToPile {
+
+    // create the PILE
+    self.pileCards = [[NSMutableArray alloc]init];
+    //    NSLog(@"card0 has status %d",[self.allCards[3] statusOfCard]);
+    
+    // TODO 07.07.20 add randomization for the card
+    for (Card *cardForPile in self.allCards) {
+        if (cardForPile.statusOfCard == HAND) {
+//            NSLog(@"card%d is in someone's hand", cardForPile.noOfFiftyTwo);
+        }
+        else {
+            [self.pileCards addObject:cardForPile];
+            cardForPile.statusOfCard = PILE;
+            NSLog(@"card%d is available and now on the pile, with status %d", cardForPile.noOfFiftyTwo, cardForPile.statusOfCard);
+            // announce which card is there
+            NSLog(@"first card on pile: %d",[self.pileCards[0] noOfFiftyTwo]);
+            
+            break;
+        }
+    }
+
 }
 
 -(void)showPlayerHand:(int)forPlayerNumber {
     for (Card *myCard in [self.playersOfGame[forPlayerNumber] cardsInHand]) {
-        NSLog(@"card%d is in player%d hand", myCard.face, [self.playersOfGame[forPlayerNumber] playerNumber]);
-//        NSLog(@"player%d has cards %d",[self.playersOfGame[forPlayerNumber]playerNumber], [[[self.playersOfGame[forPlayerNumber] cardsInHand] objectAtIndex:5]face]);
+        NSLog(@"player%d has card%d", [self.playersOfGame[forPlayerNumber] playerNumber], myCard.noOfFiftyTwo);
+//        NSLog(@"player%d has cards %d",[self.playersOfGame[forPlayerNumber]playerNumber], [[[self.playersOfGame[forPlayerNumber] cardsInHand] objectAtIndex:2]noOfFiftyTwo]);
     }
 
 }
 
 -(void)dealInitialRound:(int)amount {
+    NSInteger k = 0; // to compare to
     // determine how many cards need to be dealt
-    NSInteger i = [self.playersOfGame count];
+    NSInteger i = self.numberOfPlayers;
     i = amount*i;
     NSLog(@"%ld cards will be dealt, %d to each player",i, amount);
+    // need to subtract 1 because of 0 based array // there is most likely a better way to alter the
+//    i-=1;
     
-    
+    //    TODO 07.07.20
+    // check if inDeck
     // deal random card to each user
     // mark card inHand
     
     
-    while (i>0) {
+    while (i>k) {
         for (Player *player in self.playersOfGame) {
-            [player.cardsInHand addObject:[self.allCards objectAtIndex:i] ];
-            [[self.allCards objectAtIndex:i] setStatusOfCard:HAND];
-//            NSLog(@"valuePointfor status = %d",[[self.allCards objectAtIndex:i]statusOfCard]);
-            
-            // NSLog(@"BOOL Value: %d",[[self.allCards objectAtIndex:i]deck]);
-            // NSLog(@"player%d has %@ cards",player.playerNumber,player.cardsInHand);
-            NSLog(@"Player%d has %ld cards in their hand", player.playerNumber, [player.cardsInHand count]);
-            i--;
+            [player.cardsInHand addObject:[self.allCards objectAtIndex:k] ];
+//            NSLog(@"card face: %d",[self.allCards[10] noOfFiftyTwo]);
+
+            [[self.allCards objectAtIndex:k] setStatusOfCard:HAND];
+            //            NSLog(@"valuePointfor status = %d",[[self.allCards objectAtIndex:i]statusOfCard]);
+            // SHOWS the cards being dealt out. helpful 07.06.20
+            //            NSLog(@"Player%d has %ld cards in their hand", player.playerNumber, [player.cardsInHand count]);
+            k++;
         }
     }
     
-    /* // display card's face's number
-     for (Card *myCard in [self.playersOfGame[1] cardsInHand]) {
-        NSLog(@"card%d is added", myCard.face);
-    }*/
-
+    //    TODO
+    // check inDeck
     // deal random card to pile
     // mark card as inPile, change inDeck
     
@@ -83,20 +164,26 @@
 
 -(void)createUser:(int)playersCount {
     self.playersOfGame = [[NSMutableArray alloc]init];
-    
-    for (playersCount=playersCount; playersCount > 0; playersCount--) {
-        Player *player1 = [[Player alloc]init];
+    int k = 0; // to compare to and increase
+//    for (playersCount=playersCount; playersCount > 0; playersCount--) {
+    while (playersCount>k) {
+        
+        Player *playerNew = [[Player alloc]init];
         // hardcoded for now, but will need prompt for name. Fixed outside for loop currently 07.06.20
-        player1.name = @"JD";
-        player1.playerNumber = playersCount;
-        player1.thrown = YES;
-        player1.cardsInHand = [[NSMutableArray alloc]init];
-        NSLog(@"add a new user: %d with name: %@", playersCount, player1.name);
-        [self.playersOfGame addObject:player1];
+        playerNew.name = @"JD";
+        playerNew.playerNumber = k;
+        playerNew.statusOfPlayer = THROWN;
+        playerNew.currentTurn = NO;
+        playerNew.cardsInHand = [[NSMutableArray alloc]init];
+        NSLog(@"add a new user: %d with name: %@", k, playerNew.name);
+        [self.playersOfGame addObject:playerNew];
+        k++;
     }
     for (Player *playerN in self.playersOfGame) {
-        NSLog(@"player%d is added", playerN.playerNumber);
+        NSLog(@"player%d is added to the array of players", playerN.playerNumber);
     }
+    // assign first of the array to be up
+    self.whosUP = 0;
 }
 
 #pragma mark - CREATE CARDS

@@ -13,6 +13,7 @@
 @interface ViewController : UIViewController
 
 @property NSMutableArray *allCards; // array of cards available to users
+@property NSMutableArray *pileCards; // array of cards on the pile
 
 @end
 
