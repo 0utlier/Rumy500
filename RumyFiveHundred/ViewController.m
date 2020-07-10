@@ -135,20 +135,44 @@
     NSLog(@"It is player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
     
     // TODO 07.10.20 give player option to choose between DECK and PILE
-    // if player selects DECK, proceed
-    // else if player selects a card on the PILE
+    // if player selects a card on the PILE
     //      Obtain index of the card and ADD/MOVE all of them from that card on To HAND/playerHand
+    // else if player selects DECK, proceed
     // Mark player PICKED
     // Enforce SET to BOARD [disable ability to throw to PILE before releasing set]
     // QUESTION: Make it possible to pick up in first place without checking if set WILL exist? Or give user UNDO option
     
-    // player has picked FROM this card in the PILE
-    int indexChosen = 4;  /*07.10.20 HARDCODE TODO this will be assigned by where the player has selected*/
-    for (int i = 8/*07.10.20 HARDCODE TODO(int)[self.pileCards count]//count of the pile*/; i >= indexChosen; indexChosen++) {
-        NSLog(@"This is the card at index %d", indexChosen);
+    if (self.whosUP > 100/*TODO 07.10.20 - player selects card from pile*/) {
+        NSLog(@"Player %D has picked from the pile", self.whosUP);
+        
+        // player has picked FROM this card in the PILE
+        NSMutableArray *cardsPickedUpFromPile = [[NSMutableArray alloc]init];
+        int indexChosen = 4;  /*07.10.20 HARDCODE TODO this will be assigned by where the player has selected*/
+        for (int i = 8/*07.10.20 HARDCODE TODO(int)[self.pileCards count]//count of the pile*/;
+             i >= indexChosen;
+             indexChosen++) {
+            NSLog(@"This is the card at index %d", indexChosen);
+            // add to temp array to add to Hand later
+            //        [cardsPickedUpFromPile addObject:self.pileCards[indexChosen]]; // uncomment me 07.10.20 hardcoded is causing this to crash
+            
+        }
+        for (Card *pickedUpFromPile in cardsPickedUpFromPile) {
+            
+            // mark as HAND in allCards
+            for (Card *originalCard in self.allCards) {
+                if (originalCard.noOfFiftyTwo == pickedUpFromPile.noOfFiftyTwo) {
+                    originalCard.statusOfCard = HAND;
+                }}
+            // add to player's hand
+            [[self.playersOfGame[self.whosUP]cardsInHand] addObject:pickedUpFromPile];
+            
+            // mark Player as PICKED
+            [self.playersOfGame[self.whosUP]setStatusOfPlayer:PICKED];
+        }
+        //    NSLog(@"The card that was picked: %d",[self.pileCards[indexChosen]noOfFiftyTwo]);
     }
-//    self.pileCards[indexChosen];
     
+    else if (self.whosUP > 0/*TODO 07.10.20 - player selects card from deck*/) {
     // TODO 07.07.20 add randomization for the card
     // pick card from DECK add to/mark HAND, set player to picked
     for (Card *cardForPick in self.allCards) {
@@ -156,16 +180,16 @@
             [[self.playersOfGame[self.whosUP] cardsInHand] addObject:cardForPick];
             cardForPick.statusOfCard = HAND;
             // announce which card is there
-            NSLog(@"the card picked by player%d: %d",[self.playersOfGame[self.whosUP] playerNumber], [[[self.playersOfGame[self.whosUP] cardsInHand] lastObject] noOfFiftyTwo]);
+            NSLog(@"the card picked by player%d: %d",[self.playersOfGame[self.whosUP]playerNumber], [[[self.playersOfGame[self.whosUP]cardsInHand] lastObject] noOfFiftyTwo]);
             break;
         }
         else {
             //            NSLog(@"card%d is unavailable with status %d", cardForPick.noOfFiftyTwo, cardForPick.statusOfCard);
         }
     }
-    [self.playersOfGame[self.whosUP] setStatusOfPlayer:PICKED];
+    [self.playersOfGame[self.whosUP]setStatusOfPlayer:PICKED];
     // player has picked a card and now needs to either put cards on the board, or
-    
+    }
     // player selects a card 07.07.20 HARDCODED for now
     // change this to the noOf52 of the card when ready [makes function easier to read]
     int cardSelectedIndex = 4;
@@ -192,11 +216,12 @@
     //[[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
     // remove card from hand
     [[self.playersOfGame[self.whosUP]cardsInHand] removeObjectAtIndex:cardSelectedIndex];
-    NSInteger pileCount = [self.pileCards count]; // why did I make this? 07.10.20
+//    NSInteger pileCount = [self.pileCards count]; // why did I make this? 07.10.20
     for (Card *cardInPile in self.pileCards) {
-        NSLog(@"The pile has the cards: %d",cardInPile.noOfFiftyTwo);
+//        NSLog(@"The pile has the cards: %d AND %d cards available",cardInPile.noOfFiftyTwo, (int)self.pileCards.count);
     }
-    
+    NSLog(@"The array of PILE CARDS: %@",[self.pileCards valueForKey:@"noOfFiftyTwo"]);
+
     [self.playersOfGame[self.whosUP] setStatusOfPlayer:THROWN];
     
     
@@ -219,12 +244,48 @@
     
 }
 
+-(void)showValueOfCardsInHand {
+    int negativeValue = 0;
+    for (Card *myCard in self.playersOfGame[self.whosUP]) {
+        negativeValue += myCard.valuePoint;
+        // display myCard.valuePoint next to card too
+    }
+}
+
+-(int)randomCardFromDeck {
+    int chosenCard = 0;
+    NSMutableArray *cardsInDeck = [[NSMutableArray alloc]init];
+    //filter through deck and ensure it is set to DECK
+    for (Card *deckOrNot in self.allCards) {
+        if (deckOrNot.statusOfCard == DECK) {
+//            NSLog(@"card%d is in DECK", deckOrNot.noOfFiftyTwo);
+            [cardsInDeck addObject:deckOrNot];
+        }}
+    //        NSUInteger randomIndex = arc4random() % self.allCards.count;
+    NSUInteger randomIndex = arc4random() % cardsInDeck.count;
+    chosenCard = [cardsInDeck[randomIndex]noOfFiftyTwo];
+//    NSLog(@"The array has %@",[cardsInDeck valueForKey:@"noOfFiftyTwo"]);
+
+    return chosenCard;
+}
+
 -(void)addFirstCardToPile {
     
     // create the PILE
     self.pileCards = [[NSMutableArray alloc]init];
     //    NSLog(@"card0 has status %d",[self.allCards[3] statusOfCard]);
-    
+    int cardToBeAdded = [self randomCardFromDeck];
+    NSLog(@"Added to the PILE:%d",cardToBeAdded);
+    for (Card *cardForPile in self.allCards) {
+        if (cardForPile.noOfFiftyTwo == cardToBeAdded) {
+            [self.pileCards addObject:cardForPile];
+            cardForPile.statusOfCard = PILE;
+            // announce which card is there
+            NSLog(@"first card on pile: %d",[self.pileCards[0] noOfFiftyTwo]);
+            break;
+        }
+    }
+/* // removed 07.10.20 because I created a randomizer instead
     // TODO 07.07.20 add randomization for the card
     for (Card *cardForPile in self.allCards) {
         if (cardForPile.statusOfCard == HAND) {
@@ -239,7 +300,7 @@
             
             break;
         }
-    }
+    }*/
     
 }
 
@@ -269,7 +330,7 @@
 //            [player.cardsInHand addObject:[self.allCards objectAtIndex:k] ]; //HARDCODED
             NSUInteger randomIndex = arc4random() % self.allCards.count;
             [player.cardsInHand addObject:[self.allCards objectAtIndex:randomIndex]];
-                        NSLog(@"card face: %d",[self.allCards[randomIndex] noOfFiftyTwo]);
+//                        NSLog(@"card face: %d",[self.allCards[randomIndex] noOfFiftyTwo]);
             
             [[self.allCards objectAtIndex:k] setStatusOfCard:HAND];
             //            NSLog(@"valuePointfor status = %d",[[self.allCards objectAtIndex:i]statusOfCard]);
