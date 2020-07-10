@@ -27,7 +27,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"I love Objective C");
-
+    
     // set how many players there are
     self.numberOfPlayers = 3;
     
@@ -42,12 +42,18 @@
     [self startPlaying];
     [self startPlaying];
     //    [self printMe];
-
+    
 }
 
 -(void)createRumy:(int)cardSelectedIndex { //change this to "cardOf52Number" for easier readability of this func
-    // create array for set use
-    NSMutableArray *currentSet = [[NSMutableArray alloc]init];
+    // create 2 arrays for SET use [STRAIGHT vs 3ofKind]
+    NSMutableArray *currentSetStraight = [[NSMutableArray alloc]init];
+    NSMutableArray *currentSet3Kind = [[NSMutableArray alloc]init];
+    // add current card to current sets // remove later if array is < 3
+    [currentSetStraight addObject:[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]];
+    [currentSet3Kind addObject:[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]];
+    // mark card as BOARD
+    [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]setStatusOfCard:BOARD];
     
     NSLog(@"Player%d has selected: %d",self.whosUP, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
     
@@ -56,46 +62,95 @@
     // forIn cards in hand
     // if not same card
     //   if same face, addObject currentSet
-    //      if not same as any of the cards in the currentSet // QUESTION 07.07.20 how do I write this?
-    //  else if next card over
+    //   else if same suit
+    //      if next card over
     //      if not same as any of the cards in the currentSet, and compare to all in currentSet
+    
+    // make the int something it could never be, so that it gets assigned only when it needs to
+    int cardAddedToCurrentSet = 53;
+    
     for (Card *potentialMatch in [self.playersOfGame[self.whosUP]cardsInHand]) {
+        NSLog(@"The cards we are comparing: %d AND %d",potentialMatch.noOfFiftyTwo, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+        
         // pass by same card in hand
         if (potentialMatch.noOfFiftyTwo != [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]) {
             
             // check if face is same
             if (potentialMatch.face == [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]face]) {
-                NSLog(@"potential card's face is %d, our card %d",potentialMatch.suit, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]suit]);
+                NSLog(@"potential card's FACE is %d, our card %d",potentialMatch.face, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]face]);
                 // add to set
-                [currentSet addObject:potentialMatch];
-                // check once more for face x2
+                [currentSet3Kind addObject:potentialMatch];
                 // mark cards as BOARD in allCards
             }
-            /* // removed 07.07.20, since checking suit first is pointless, if we are going to check if card is next in line of 52
-             // check if suit is same
-             if (potentialMatch.suit == [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]suit]) {
-             // NSLog(@"the card's suit is %d",potentialMatch.suit);
-             // check if noOf52 is +/-1
-             NSLog(@"%d and %d", potentialMatch.noOfFiftyTwo, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
-             */
             
-            // check if card has a neighboring card // check if noOf52 is +/-1
-            else if (abs(potentialMatch.noOfFiftyTwo - [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo])==1) {
-                NSLog(@"the card's faces are %d AND %d",potentialMatch.face, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]face]);
+            // added back 07.07.20, since checking suit first is necessary to ensure that absolute value is not from king to ace of other suit!
+            // check if suit is same
+            else if (potentialMatch.suit == [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]suit]) {
+                // NSLog(@"the card's suit is %d",potentialMatch.suit);
+                // check if noOf52 is +/-1
+                NSLog(@"potential card's NO. is %d, our card %d", potentialMatch.noOfFiftyTwo, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+                
+                // check if card has a neighboring card // check if noOf52 is +/-1
+                // OR next to another card that is already in the set as well
+                if ((abs(potentialMatch.noOfFiftyTwo - [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo])==2)/*needs to be 1*/ || (abs(potentialMatch.noOfFiftyTwo - cardAddedToCurrentSet)==3)) {
+                    NSLog(@"the card's NO. are %d AND %d, so it was added",potentialMatch.noOfFiftyTwo, [[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+                    [currentSetStraight addObject:potentialMatch];
+                    // assign and check next round
+                    cardAddedToCurrentSet = potentialMatch.noOfFiftyTwo;
+                }
+                // mark card as BOOL straight
             }
-            // mark card as BOOL straight
+            // remove cards from HAND [player's array]
+        } /**/ /**/
+        //        for (Card *inCurrentSet in currentSet) {
+        //            NSLog(@"CurrentSet contains: %d",inCurrentSet.noOfFiftyTwo);
+        //        }
+        NSLog(@"3 of a kind array: %@", [currentSet3Kind valueForKey:@"face"]);
+        NSLog(@"Straight: %@", [currentSetStraight valueForKey:@"noOfFiftyTwo"]);
+    } //end for in for cards compare
+    
+    if ([currentSet3Kind count] > 2||[currentSetStraight count] > 2) {
+        NSLog(@"Player %d's 3KindSET has 3 or more",[self.playersOfGame[self.whosUP]playerNumber]);
+        if ([currentSet3Kind count] > 2) {
+            NSLog(@"3 of a Kind!");
         }
-    } /**/ /**/
+        if ([currentSetStraight count] > 2) {
+            NSLog(@"Straight!!");
+        }
+        // erase currentSet
+        // give option to throw
+        
+        // reassign cards HAND
+        for (Card *inCurrentSet in [self.playersOfGame[self.whosUP]cardsInHand]) {
+            [inCurrentSet setStatusOfCard:HAND];
+        }
+        
+        
+        
+    }
 }
 
 -(void)startPlaying {
     // check whos turn
     NSLog(@"It is player%d's turn",[self.playersOfGame[self.whosUP]playerNumber]);
-
-    // TODO give option to choose between DECK and PILE
+    
+    // TODO 07.10.20 give player option to choose between DECK and PILE
+    // if player selects DECK, proceed
+    // else if player selects a card on the PILE
+    //      Obtain index of the card and ADD/MOVE all of them from that card on To HAND/playerHand
+    // Mark player PICKED
+    // Enforce SET to BOARD [disable ability to throw to PILE before releasing set]
+    // QUESTION: Make it possible to pick up in first place without checking if set WILL exist? Or give user UNDO option
+    
+    // player has picked FROM this card in the PILE
+    int indexChosen = 4;  /*07.10.20 HARDCODE TODO this will be assigned by where the player has selected*/
+    for (int i = 8/*07.10.20 HARDCODE TODO(int)[self.pileCards count]//count of the pile*/; i >= indexChosen; indexChosen++) {
+        NSLog(@"This is the card at index %d", indexChosen);
+    }
+//    self.pileCards[indexChosen];
     
     // TODO 07.07.20 add randomization for the card
-    // pick card add to/mark HAND, set player to picked
+    // pick card from DECK add to/mark HAND, set player to picked
     for (Card *cardForPick in self.allCards) {
         if (cardForPick.statusOfCard == DECK) {
             [[self.playersOfGame[self.whosUP] cardsInHand] addObject:cardForPick];
@@ -105,7 +160,7 @@
             break;
         }
         else {
-//            NSLog(@"card%d is unavailable with status %d", cardForPick.noOfFiftyTwo, cardForPick.statusOfCard);
+            //            NSLog(@"card%d is unavailable with status %d", cardForPick.noOfFiftyTwo, cardForPick.statusOfCard);
         }
     }
     [self.playersOfGame[self.whosUP] setStatusOfPlayer:PICKED];
@@ -127,22 +182,21 @@
         if (cardForMarkInPile.noOfFiftyTwo == currentCardNo) {
             cardForMarkInPile.statusOfCard = PILE;
             NSLog(@"The card that was thrown to the pile: %d",cardForMarkInPile.noOfFiftyTwo);
-
             break;
         }
     }
     // add card to pile array
-//    [self.pileCards addObject:[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]];
+    //    [self.pileCards addObject:[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]];
     [self.pileCards addObject:self.allCards[currentCardNo]];
     NSLog(@"player%d threw the card: %d",[self.playersOfGame[self.whosUP] playerNumber], [self.allCards[currentCardNo]noOfFiftyTwo]);
-          //[[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
+    //[[self.playersOfGame[self.whosUP]cardsInHand][cardSelectedIndex]noOfFiftyTwo]);
     // remove card from hand
     [[self.playersOfGame[self.whosUP]cardsInHand] removeObjectAtIndex:cardSelectedIndex];
-    NSInteger pileCount = [self.pileCards count];
+    NSInteger pileCount = [self.pileCards count]; // why did I make this? 07.10.20
     for (Card *cardInPile in self.pileCards) {
         NSLog(@"The pile has the cards: %d",cardInPile.noOfFiftyTwo);
     }
-
+    
     [self.playersOfGame[self.whosUP] setStatusOfPlayer:THROWN];
     
     
@@ -161,12 +215,12 @@
     
     // make recursive, so that game continues. Will continue until one player is at ZERO
     // disabled 07.07.20 since we are not there yet
-//    [self startPlaying];
-
+    //    [self startPlaying];
+    
 }
 
 -(void)addFirstCardToPile {
-
+    
     // create the PILE
     self.pileCards = [[NSMutableArray alloc]init];
     //    NSLog(@"card0 has status %d",[self.allCards[3] statusOfCard]);
@@ -174,7 +228,7 @@
     // TODO 07.07.20 add randomization for the card
     for (Card *cardForPile in self.allCards) {
         if (cardForPile.statusOfCard == HAND) {
-//            NSLog(@"card%d is in someone's hand", cardForPile.noOfFiftyTwo);
+            //            NSLog(@"card%d is in someone's hand", cardForPile.noOfFiftyTwo);
         }
         else {
             [self.pileCards addObject:cardForPile];
@@ -186,25 +240,23 @@
             break;
         }
     }
-
+    
 }
 
 -(void)showPlayerHand:(int)forPlayerNumber {
     for (Card *myCard in [self.playersOfGame[forPlayerNumber] cardsInHand]) {
         NSLog(@"player%d has card%d", [self.playersOfGame[forPlayerNumber] playerNumber], myCard.noOfFiftyTwo);
-//        NSLog(@"player%d has cards %d",[self.playersOfGame[forPlayerNumber]playerNumber], [[[self.playersOfGame[forPlayerNumber] cardsInHand] objectAtIndex:2]noOfFiftyTwo]);
+        //        NSLog(@"player%d has cards %d",[self.playersOfGame[forPlayerNumber]playerNumber], [[[self.playersOfGame[forPlayerNumber] cardsInHand] objectAtIndex:2]noOfFiftyTwo]);
     }
-
+    
 }
 
 -(void)dealInitialRound:(int)amount {
-    NSInteger k = 0; // to compare to
+    NSInteger k = 0; // to compare to and count from "0 until i"
     // determine how many cards need to be dealt
     NSInteger i = self.numberOfPlayers;
     i = amount*i;
     NSLog(@"%ld cards will be dealt, %d to each player",i, amount);
-    // need to subtract 1 because of 0 based array // there is most likely a better way to alter the
-//    i-=1;
     
     //    TODO 07.07.20
     // check if inDeck
@@ -214,9 +266,11 @@
     
     while (i>k) {
         for (Player *player in self.playersOfGame) {
-            [player.cardsInHand addObject:[self.allCards objectAtIndex:k] ];
-//            NSLog(@"card face: %d",[self.allCards[10] noOfFiftyTwo]);
-
+//            [player.cardsInHand addObject:[self.allCards objectAtIndex:k] ]; //HARDCODED
+            NSUInteger randomIndex = arc4random() % self.allCards.count;
+            [player.cardsInHand addObject:[self.allCards objectAtIndex:randomIndex]];
+                        NSLog(@"card face: %d",[self.allCards[randomIndex] noOfFiftyTwo]);
+            
             [[self.allCards objectAtIndex:k] setStatusOfCard:HAND];
             //            NSLog(@"valuePointfor status = %d",[[self.allCards objectAtIndex:i]statusOfCard]);
             // SHOWS the cards being dealt out. helpful 07.06.20
@@ -237,7 +291,7 @@
 -(void)createUser:(int)playersCount {
     self.playersOfGame = [[NSMutableArray alloc]init];
     int k = 0; // to compare to and increase
-//    for (playersCount=playersCount; playersCount > 0; playersCount--) {
+    //    for (playersCount=playersCount; playersCount > 0; playersCount--) {
     while (playersCount>k) {
         
         Player *playerNew = [[Player alloc]init];
@@ -375,79 +429,79 @@
 }
 -(void)createDiamonds {
     Card *aceDiamonds = [[Card alloc]init];
-    aceDiamonds.suit = 0;
+    aceDiamonds.suit = 1;
     aceDiamonds.face = 0;
     aceDiamonds.valuePoint = 5;
     aceDiamonds.noOfFiftyTwo = 13;
     aceDiamonds.statusOfCard = DECK;
     Card *twoDiamonds = [[Card alloc]init];
-    twoDiamonds.suit = 0;
+    twoDiamonds.suit = 1;
     twoDiamonds.face = 1;
     twoDiamonds.valuePoint= 5;
     twoDiamonds.noOfFiftyTwo = 14;
     twoDiamonds.statusOfCard = DECK;
     Card *threeDiamonds = [[Card alloc]init];
-    threeDiamonds.suit = 0;
+    threeDiamonds.suit = 1;
     threeDiamonds.face = 2;
     threeDiamonds.valuePoint= 5;
     threeDiamonds.noOfFiftyTwo = 15;
     threeDiamonds.statusOfCard = DECK;
     Card *fourDiamonds = [[Card alloc]init];
-    fourDiamonds.suit = 0;
+    fourDiamonds.suit = 1;
     fourDiamonds.face = 3;
     fourDiamonds.valuePoint= 5;
     fourDiamonds.noOfFiftyTwo = 16;
     fourDiamonds.statusOfCard = DECK;
     Card *fiveDiamonds = [[Card alloc]init];
-    fiveDiamonds.suit = 0;
+    fiveDiamonds.suit = 1;
     fiveDiamonds.face = 4;
     fiveDiamonds.valuePoint= 5;
     fiveDiamonds.noOfFiftyTwo = 17;
     fiveDiamonds.statusOfCard = DECK;
     Card *sixDiamonds = [[Card alloc]init];
-    sixDiamonds.suit = 0;
+    sixDiamonds.suit = 1;
     sixDiamonds.face = 5;
     sixDiamonds.valuePoint= 5;
     sixDiamonds.noOfFiftyTwo = 18;
     sixDiamonds.statusOfCard = DECK;
     Card *sevenDiamonds = [[Card alloc]init];
-    sevenDiamonds.suit = 0;
+    sevenDiamonds.suit = 1;
     sevenDiamonds.face = 6;
     sevenDiamonds.valuePoint= 5;
     sevenDiamonds.noOfFiftyTwo = 19;
     sevenDiamonds.statusOfCard = DECK;
     Card *eightDiamonds = [[Card alloc]init];
-    eightDiamonds.suit = 0;
+    eightDiamonds.suit = 1;
     eightDiamonds.face = 7;
     eightDiamonds.valuePoint= 5;
     eightDiamonds.noOfFiftyTwo = 20;
     eightDiamonds.statusOfCard = DECK;
     Card *nineDiamonds = [[Card alloc]init];
-    nineDiamonds.suit = 0;
+    nineDiamonds.suit = 1;
     nineDiamonds.face = 8;
     nineDiamonds.valuePoint= 5;
     nineDiamonds.noOfFiftyTwo = 21;
     nineDiamonds.statusOfCard = DECK;
     Card *tenDiamonds = [[Card alloc]init];
-    tenDiamonds.suit = 0;
+    tenDiamonds.suit = 1;
     tenDiamonds.face = 9;
     tenDiamonds.valuePoint= 5;
     tenDiamonds.noOfFiftyTwo = 22;
     tenDiamonds.statusOfCard = DECK;
     Card *jackDiamonds = [[Card alloc]init];
-    jackDiamonds.suit = 0;
+    jackDiamonds.suit = 1;
     jackDiamonds.face = 10;
     jackDiamonds.valuePoint= 10;
     jackDiamonds.noOfFiftyTwo = 23;
     jackDiamonds.statusOfCard = DECK;
     Card *queenDiamonds = [[Card alloc]init];
-    queenDiamonds.suit = 0;
+    queenDiamonds.suit = 1;
     queenDiamonds.face = 11;
     queenDiamonds.valuePoint= 10;
     queenDiamonds.noOfFiftyTwo = 24;
     queenDiamonds.statusOfCard = DECK;
     Card *kingDiamonds = [[Card alloc]init];
-    kingDiamonds.suit = 0;
+    kingDiamonds.suit = 1;
     kingDiamonds.face = 12;
     kingDiamonds.valuePoint= 10;
     kingDiamonds.noOfFiftyTwo = 25;
@@ -459,79 +513,79 @@
 }
 -(void)createHearts {
     Card *aceHearts = [[Card alloc]init];
-    aceHearts.suit = 0;
+    aceHearts.suit = 2;
     aceHearts.face = 0;
     aceHearts.valuePoint= 5;
     aceHearts.noOfFiftyTwo = 26;
     aceHearts.statusOfCard = DECK;
     Card *twoHearts = [[Card alloc]init];
-    twoHearts.suit = 0;
+    twoHearts.suit = 2;
     twoHearts.face = 1;
     twoHearts.valuePoint= 5;
     twoHearts.noOfFiftyTwo = 27;
     twoHearts.statusOfCard = DECK;
     Card *threeHearts = [[Card alloc]init];
-    threeHearts.suit = 0;
+    threeHearts.suit = 2;
     threeHearts.face = 2;
     threeHearts.valuePoint= 5;
     threeHearts.noOfFiftyTwo = 28;
     threeHearts.statusOfCard = DECK;
     Card *fourHearts = [[Card alloc]init];
-    fourHearts.suit = 0;
+    fourHearts.suit = 2;
     fourHearts.face = 3;
     fourHearts.valuePoint= 5;
     fourHearts.noOfFiftyTwo = 29;
     fourHearts.statusOfCard = DECK;
     Card *fiveHearts = [[Card alloc]init];
-    fiveHearts.suit = 0;
+    fiveHearts.suit = 2;
     fiveHearts.face = 4;
     fiveHearts.valuePoint= 5;
     fiveHearts.noOfFiftyTwo = 30;
     fiveHearts.statusOfCard = DECK;
     Card *sixHearts = [[Card alloc]init];
-    sixHearts.suit = 0;
+    sixHearts.suit = 2;
     sixHearts.face = 5;
     sixHearts.valuePoint= 5;
     sixHearts.noOfFiftyTwo = 31;
     sixHearts.statusOfCard = DECK;
     Card *sevenHearts = [[Card alloc]init];
-    sevenHearts.suit = 0;
+    sevenHearts.suit = 2;
     sevenHearts.face = 6;
     sevenHearts.valuePoint= 5;
     sevenHearts.noOfFiftyTwo = 32;
     sevenHearts.statusOfCard = DECK;
     Card *eightHearts = [[Card alloc]init];
-    eightHearts.suit = 0;
+    eightHearts.suit = 2;
     eightHearts.face = 7;
     eightHearts.valuePoint= 5;
     eightHearts.noOfFiftyTwo = 33;
     eightHearts.statusOfCard = DECK;
     Card *nineHearts = [[Card alloc]init];
-    nineHearts.suit = 0;
+    nineHearts.suit = 2;
     nineHearts.face = 8;
     nineHearts.valuePoint= 5;
     nineHearts.noOfFiftyTwo = 34;
     nineHearts.statusOfCard = DECK;
     Card *tenHearts = [[Card alloc]init];
-    tenHearts.suit = 0;
+    tenHearts.suit = 2;
     tenHearts.face = 9;
     tenHearts.valuePoint= 5;
     tenHearts.noOfFiftyTwo = 35;
     tenHearts.statusOfCard = DECK;
     Card *jackHearts = [[Card alloc]init];
-    jackHearts.suit = 0;
+    jackHearts.suit = 2;
     jackHearts.face = 10;
     jackHearts.valuePoint= 10;
     jackHearts.noOfFiftyTwo = 36;
     jackHearts.statusOfCard = DECK;
     Card *queenHearts = [[Card alloc]init];
-    queenHearts.suit = 0;
+    queenHearts.suit = 2;
     queenHearts.face = 11;
     queenHearts.valuePoint= 10;
     queenHearts.noOfFiftyTwo = 37;
     queenHearts.statusOfCard = DECK;
     Card *kingHearts = [[Card alloc]init];
-    kingHearts.suit = 0;
+    kingHearts.suit = 2;
     kingHearts.face = 12;
     kingHearts.valuePoint= 10;
     kingHearts.noOfFiftyTwo = 38;
@@ -544,79 +598,79 @@
 }
 -(void)createSpades {
     Card *aceSpades = [[Card alloc]init];
-    aceSpades.suit = 0;
+    aceSpades.suit = 3;
     aceSpades.face = 0;
     aceSpades.valuePoint= 5;
     aceSpades.noOfFiftyTwo = 39;
     aceSpades.statusOfCard = DECK;
     Card *twoSpades = [[Card alloc]init];
-    twoSpades.suit = 0;
+    twoSpades.suit = 3;
     twoSpades.face = 1;
     twoSpades.valuePoint= 5;
     twoSpades.noOfFiftyTwo = 40;
     twoSpades.statusOfCard = DECK;
     Card *threeSpades = [[Card alloc]init];
-    threeSpades.suit = 0;
+    threeSpades.suit = 3;
     threeSpades.face = 2;
     threeSpades.valuePoint= 5;
     threeSpades.noOfFiftyTwo = 41;
     threeSpades.statusOfCard = DECK;
     Card *fourSpades = [[Card alloc]init];
-    fourSpades.suit = 0;
+    fourSpades.suit = 3;
     fourSpades.face = 3;
     fourSpades.valuePoint= 5;
     fourSpades.noOfFiftyTwo = 42;
     fourSpades.statusOfCard = DECK;
     Card *fiveSpades = [[Card alloc]init];
-    fiveSpades.suit = 0;
+    fiveSpades.suit = 3;
     fiveSpades.face = 4;
     fiveSpades.valuePoint= 5;
     fiveSpades.noOfFiftyTwo = 43;
     fiveSpades.statusOfCard = DECK;
     Card *sixSpades = [[Card alloc]init];
-    sixSpades.suit = 0;
+    sixSpades.suit = 3;
     sixSpades.face = 5;
     sixSpades.valuePoint= 5;
     sixSpades.noOfFiftyTwo = 44;
     sixSpades.statusOfCard = DECK;
     Card *sevenSpades = [[Card alloc]init];
-    sevenSpades.suit = 0;
+    sevenSpades.suit = 3;
     sevenSpades.face = 6;
     sevenSpades.valuePoint= 5;
     sevenSpades.noOfFiftyTwo = 45;
     sevenSpades.statusOfCard = DECK;
     Card *eightSpades = [[Card alloc]init];
-    eightSpades.suit = 0;
+    eightSpades.suit = 3;
     eightSpades.face = 7;
     eightSpades.valuePoint= 5;
     eightSpades.noOfFiftyTwo = 46;
     eightSpades.statusOfCard = DECK;
     Card *nineSpades = [[Card alloc]init];
-    nineSpades.suit = 0;
+    nineSpades.suit = 3;
     nineSpades.face = 8;
     nineSpades.valuePoint= 5;
     nineSpades.noOfFiftyTwo = 47;
     nineSpades.statusOfCard = DECK;
     Card *tenSpades = [[Card alloc]init];
-    tenSpades.suit = 0;
+    tenSpades.suit = 3;
     tenSpades.face = 9;
     tenSpades.valuePoint= 5;
     tenSpades.noOfFiftyTwo = 48;
     tenSpades.statusOfCard = DECK;
     Card *jackSpades = [[Card alloc]init];
-    jackSpades.suit = 0;
+    jackSpades.suit = 3;
     jackSpades.face = 10;
     jackSpades.valuePoint= 10;
     jackSpades.noOfFiftyTwo = 49;
     jackSpades.statusOfCard = DECK;
     Card *queenSpades = [[Card alloc]init];
-    queenSpades.suit = 0;
+    queenSpades.suit = 3;
     queenSpades.face = 11;
     queenSpades.valuePoint= 10;
     queenSpades.noOfFiftyTwo = 50;
     queenSpades.statusOfCard = DECK;
     Card *kingSpades = [[Card alloc]init];
-    kingSpades.suit = 0;
+    kingSpades.suit = 3;
     kingSpades.face = 12;
     kingSpades.valuePoint= 10;
     kingSpades.noOfFiftyTwo = 51;
@@ -629,7 +683,7 @@
 }
 
 
--(void)printMe {
+-(void)printMe { //used to create print outs of creationMethods
     self.printMeArray = [[NSMutableArray alloc]initWithObjects:@"ace", @"two", @"three", @"four", @"five", @"six", @"seven", @"eight", @"nine", @"ten", @"jack", @"queen", @"king", nil];
     //    NSLog(@"array = %@", self.printMeArray);
     
